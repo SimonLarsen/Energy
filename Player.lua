@@ -38,7 +38,11 @@ function Player.update(self,dt)
 	end
 	-- Check collision with crystals
 	for i,v in ipairs(crystals) do
-
+		if math.pow(self.x-v.x,2)+math.pow(self.y-v.y,2) < 220 then
+			table.remove(crystals,i)
+			energy = energy+25
+			if energy > 100 then energy = 100 end
+		end
 	end
 	-- Move 
 	self.x = self.x + self.xspeed * dt

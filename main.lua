@@ -1,6 +1,7 @@
 require("Player")
 require("Hole")
 require("Crystal")
+require("Meteor")
 
 -- Constants
 WIDTH  = 512
@@ -24,6 +25,7 @@ MMOFFY = MMW/MAPHEIGHT
 p = Player.create(MAPWIDTH/2,MAPHEIGHT/2-100)
 holes = {}
 crystals = {}
+meteors = {}
 energy = 100
 
 function love.load()
@@ -33,12 +35,25 @@ function love.load()
 	addBlackHoles(10)
 	addCrystals(5)
 	loadResources()
+	table.insert(meteors,Meteor.create(MAPWIDTH/2,MAPHEIGHT/2,0))
 end
 
 function love.update(dt)
 	-- Update black hole particles
 	for	i,h in ipairs(holes) do
 		Hole.update(h,dt)
+	end
+	-- Update crystal rotation
+	for i,v in ipairs(crystals) do
+		v.dir = v.dir + dt
+	end
+	-- Update meteors
+	for i,v in ipairs(meteors) do
+		Meteor.update(v,dt)
+		if v.x-16 < 0 or v.x+16 > MAPWIDTH
+		or v.y-16 < 0 or v.y+16 > MAPHEIGHT then
+			table.remove(meteors,i)
+		end
 	end
 	-- Update player
 	Player.update(p,dt)
@@ -60,7 +75,7 @@ function love.draw()
 	end
 	-- Draw crystals
 	for	i,v in ipairs(crystals) do
-		love.graphics.draw(imgCrystal,v.x,v.y,v.dir)
+		love.graphics.draw(imgCrystal,v.x,v.y,v.dir,1,1,16,16)
 	end
 	-- Draw borders
 	love.graphics.setColor(0,0,0,255)
@@ -68,10 +83,13 @@ function love.draw()
 	love.graphics.circle("line",MAPWIDTH/2,MAPHEIGHT/2,MAPRADIUS,64)
 	love.graphics.setColor(0,0,0,255)
 	love.graphics.circle("line",MAPWIDTH/2,MAPHEIGHT/2,MAPRADIUS,64)
-
 	-- Draw player
 	Player.draw(p)
-
+	-- Draw meteors
+	for i,v in ipairs(meteors) do
+		quad = love.graphics.newQuad(v.sprite*32,0,32,32,64,64)
+		love.graphics.drawq(imgMeteor,quad,v.x,v.y,v.dir)
+	end
 	-- Draw mini map
 	love.graphics.pop()
 	love.graphics.setColor(0,0,0,200)
@@ -104,4 +122,6 @@ function loadResources()
 	imgPlanet:setFilter("nearest","nearest")
 	imgCrystal = love.graphics.newImage("gfx/crystal.png")
 	imgCrystal:setFilter("nearest","nearest")
+	imgMeteor = love.graphics.newImage("gfx/meteor.png")
+	imgMeteor:setFilter("nearest","nearest")
 end
