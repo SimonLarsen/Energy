@@ -11,7 +11,7 @@ end
 
 function Hole.update(self,dt)
 	-- Don't update holes outside the screen
-	if math.sqrt(math.pow(p.x-self.x,2)+math.pow(p.y-self.y,2)) > HALFDIST+math.pow(self.r,2) then
+	if math.sqrt(math.pow(p.x-self.x,2)+math.pow(p.y-self.y,2)) > HALFDIST+self.r*self.r then
 		return
 	end
 
@@ -20,7 +20,7 @@ function Hole.update(self,dt)
 		if p.angle > 2*math.pi then p.angle = 0 end
 		p.dist = p.dist - 100*dt
 		if p.dist < 0 then
-			p.dist = math.pow(self.r,2)
+			p.dist = self.r*self.r
 			p.angle = math.random()*2*math.pi
 		end
 	end
@@ -48,7 +48,8 @@ end
 function addBlackHoles(n)
 	for i=1,n do
 		local rdist = 750+math.random(MAPRADIUS-750)
-		local rangle = math.random()*2*math.pi
+		--local rangle = math.random()*2*math.pi
+		local rangle = (i-1)*((2*math.pi)/n)
 		local x = MAPWIDTH/2+math.cos(rangle)*rdist
 		local y = MAPHEIGHT/2+math.sin(rangle)*rdist
 		local r = math.random(10)+10
